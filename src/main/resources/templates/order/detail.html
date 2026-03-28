@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết đơn hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .page-title {
+            color: #333;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #28a745;
+        }
+        .order-info-box {
+            background: white;
+            border-left: 5px solid #28a745;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            color: #666;
+            font-weight: 500;
+        }
+        .info-value {
+            color: #333;
+            font-weight: bold;
+        }
+        .product-table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .product-name {
+            color: #333;
+            font-weight: 500;
+        }
+        .product-price {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .summary-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 16px;
+        }
+        .summary-row.total {
+            border-top: 2px solid #ddd;
+            padding-top: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .btn-back {
+            background: #6c757d;
+            border: none;
+        }
+        .btn-back:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        .status-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div th:replace="~{layout/_header :: header}"></div>
+
+    <div class="container mt-5 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="page-title mb-0"><i class="fas fa-receipt"></i> Chi tiết đơn hàng #<span th:text="${order.id}"></span></h2>
+            <a href="/order/history" class="btn btn-back text-white">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+        </div>
+
+        <!-- Thông tin đơn hàng -->
+        <div class="row">
+            <div class="col-md-8">
+                <!-- Thông tin cơ bản -->
+                <div class="order-info-box">
+                    <h5 class="mb-3"><i class="fas fa-info-circle"></i> Thông tin đơn hàng</h5>
+                    
+                    <div class="info-row">
+                        <span class="info-label">ID Đơn hàng:</span>
+                        <span class="info-value" th:text="'#' + ${order.id}"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Ngày đặt:</span>
+                        <span class="info-value" th:text="${#dates.format(order.createDate, 'dd/MM/yyyy HH:mm')}"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Địa chỉ giao hàng:</span>
+                        <span class="info-value" th:text="${order.address}"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Trạng thái:</span>
+                        <span class="status-badge"><i class="fas fa-check-circle"></i> Đã đặt</span>
+                    </div>
+                </div>
+
+                <!-- Danh sách sản phẩm -->
+                <div class="product-table">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-success">
+                            <tr>
+                                <th>Hình ảnh</th>
+                                <th>Tên sản phẩm</th>
+                                <th>Giá</th>
+                                <th>Số lượng</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="detail : ${order.orderDetails}">
+                                <td>
+                                    <img th:src="@{|/assets/images/${detail.product.image}|}" 
+                                         alt="Product" class="product-image">
+                                </td>
+                                <td class="product-name">
+                                    <span th:text="${detail.product.name}"></span>
+                                </td>
+                                <td class="product-price">
+                                    <span th:text="${#numbers.formatDecimal(detail.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info" th:text="${detail.quantity}"></span>
+                                </td>
+                                <td class="product-price">
+                                    <span th:text="${#numbers.formatDecimal(detail.price * detail.quantity, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tóm tắt giá -->
+            <div class="col-md-4">
+                <div class="summary-box position-sticky" style="top: 20px;">
+                    <h5 class="mb-3"><i class="fas fa-calculator"></i> Tóm tắt</h5>
+                    
+                    <div class="summary-row">
+                        <span>Số sản phẩm:</span>
+                        <span th:text="${order.orderDetails != null ? order.orderDetails.size() : 0}"></span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Tổng giá trị:</span>
+                        <span class="text-success" th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Phí vận chuyển:</span>
+                        <span class="text-secondary">Miễn phí</span>
+                    </div>
+                    
+                    <div class="summary-row total">
+                        <span><i class="fas fa-money-bill-wave"></i> Tổng thanh toán:</span>
+                        <span th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                    </div>
+
+                    <button class="btn btn-success w-100 mt-3" disabled>
+                        <i class="fas fa-check-circle"></i> Thanh toán thành công
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div th:replace="~{layout/_footer :: footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

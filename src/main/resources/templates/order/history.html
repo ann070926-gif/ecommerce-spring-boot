@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử đơn hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .page-title {
+            color: #333;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #007bff;
+        }
+        .order-card {
+            background: white;
+            border-left: 4px solid #007bff;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .order-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+        }
+        .order-id {
+            color: #007bff;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .order-date {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .order-address {
+            color: #495057;
+            margin-top: 10px;
+        }
+        .btn-detail {
+            background: #007bff;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .btn-detail:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .empty-state i {
+            font-size: 60px;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        .empty-state p {
+            color: #999;
+            font-size: 18px;
+        }
+        .table-responsive {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div th:replace="~{layout/_header :: header}"></div>
+
+    <div class="container mt-5 mb-5">
+        <h2 class="page-title"><i class="fas fa-history"></i> Lịch sử đơn hàng</h2>
+
+        <!-- Không có đơn hàng -->
+        <div th:if="${orders == null || orders.isEmpty()}" class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <p>Bạn chưa có đơn hàng nào</p>
+            <a href="/product/list" class="btn btn-primary mt-3">
+                <i class="fas fa-shopping-bag"></i> Tiếp tục mua sắm
+            </a>
+        </div>
+
+        <!-- Danh sách đơn hàng -->
+        <div th:if="${orders != null && !orders.isEmpty()}">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>#ID</th>
+                            <th>Ngày đặt</th>
+                            <th>Địa chỉ giao hàng</th>
+                            <th>Số sản phẩm</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="order : ${orders}">
+                            <td class="order-id">
+                                <i class="fas fa-receipt"></i> #<span th:text="${order.id}"></span>
+                            </td>
+                            <td class="order-date">
+                                <i class="fas fa-calendar"></i> 
+                                <span th:text="${#dates.format(order.createDate, 'dd/MM/yyyy HH:mm')}"></span>
+                            </td>
+                            <td class="order-address">
+                                <i class="fas fa-map-marker-alt"></i> 
+                                <span th:text="${order.address}"></span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success" th:text="${order.orderDetails != null ? order.orderDetails.size() : 0} + ' sản phẩm'"></span>
+                            </td>
+                            <td>
+                                <a th:href="@{/order/detail/{id}(id=${order.id})}" class="btn btn-sm btn-detail text-white">
+                                    <i class="fas fa-eye"></i> Xem chi tiết
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div th:replace="~{layout/_footer :: footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
