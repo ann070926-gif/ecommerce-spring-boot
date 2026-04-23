@@ -8,7 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.poly.service.CustomUserDetailsService;
@@ -20,11 +20,37 @@ public class SecurityConfig {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
+    @Autowired
+    private CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new PasswordEncoder() {
+            @Override
+            public String encode(CharSequence rawPassword) {
+                return "{noop}" + rawPassword;
+            }
+
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                // encodedPassword có format: "{noop}plaintext"
+                String raw = rawPassword.toString();
+                
+                if (encodedPassword.startsWith("{noop}")) {
+                    String plainPassword = encodedPassword.substring(6); // bỏ "{noop}"
+                    return raw.equals(plainPassword);
+                }
+                // fallback: so sánh trực tiếp
+                return raw.equals(encodedPassword);
+            }
+        };
+    }
+
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
         authBuilder.userDetailsService(customUserDetailsService)
-                   .passwordEncoder(NoOpPasswordEncoder.getInstance());
+                   .passwordEncoder(passwordEncoder());
         return authBuilder.build();
     }
 
@@ -50,6 +76,12 @@ public class SecurityConfig {
             .loginProcessingUrl("/login") // URL khi form submit (Spring Security tự xử lý)
             .defaultSuccessUrl("/", true) // Đăng nhập thành công -> Về trang chủ
             .failureUrl("/login?error=true") // Đăng nhập sai -> Về lại trang login báo lỗi
+        );
+
+        // 3.1. Cấu hình OAuth2 Login (Google)
+        http.oauth2Login(oauth2 -> oauth2
+            .loginPage("/login")
+            .successHandler(customOAuth2SuccessHandler)
         );
 
         // 4. Cấu hình Đăng xuất

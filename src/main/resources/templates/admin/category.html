@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Danh mục</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-light">
+    <div th:replace="~{layout/_header :: header}"></div>
+
+    <main class="container mt-4 mb-5">
+        <h2 class="text-primary mb-4"><i class="fas fa-folder"></i> QUẢN LÝ DANH MỤC SẢN PHẨM</h2>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white fw-bold">Thông tin danh mục</div>
+                    <div class="card-body">
+                        <form th:action="@{/admin/category/save}" th:object="${category}" method="post">
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Mã danh mục</label>
+                                <input type="text" th:field="*{id}" class="form-control" 
+                                       th:readonly="${isEdit}" required>
+                                <small class="text-muted d-block mt-1" th:if="${isEdit}">Không thể sửa mã danh mục</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Tên danh mục</label>
+                                <input type="text" th:field="*{name}" class="form-control" 
+                                       placeholder="Nhập tên danh mục" required>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Lưu (Save)</button>
+                                <a th:href="@{/admin/category}" class="btn btn-secondary"><i class="fas fa-redo"></i> Làm mới</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white fw-bold">Danh sách danh mục</div>
+                    <div class="card-body p-0">
+                        <table class="table table-hover table-bordered mb-0 text-center align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Mã danh mục</th>
+                                    <th>Tên danh mục</th>
+                                    <th>Số sản phẩm</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="cat : ${items}">
+                                    <td th:text="${cat.id}" class="fw-bold"></td>
+                                    <td th:text="${cat.name}"></td>
+                                    <td>
+                                        <span class="badge bg-info" 
+                                              th:text="${cat.products != null ? cat.products.size() : 0} + ' sản phẩm'">
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{|/admin/category/edit/${cat.id}|}" class="btn btn-sm btn-outline-primary" title="Sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a th:href="@{|/admin/category/delete/${cat.id}|}" class="btn btn-sm btn-outline-danger" title="Xóa"
+                                           onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này? Các sản phẩm trong danh mục này cũng sẽ bị xóa!');">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div th:if="${items.isEmpty()}" class="p-4 text-center text-muted">
+                            Chưa có danh mục nào
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

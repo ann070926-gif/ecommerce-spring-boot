@@ -1,67 +1,189 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"> <head>
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
     <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .dropdown-menu { z-index: 1050 !important; }
+        .dropdown-toggle::after { margin-left: 0.5em; }
+    </style>
 </head>
 <body>
-    <nav th:fragment="header" class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/product/list">FPT Shop</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/product/list">Trang chủ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/product/list?cid=1000">Đồng hồ</a> </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/product/list?cid=1001">Máy tính</a> </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/product/list?cid=1002">Điện thoại</a> </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/product/list?cid=1003">Tai nghe</a> </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                       <a th:href="@{/cart}" class="nav-link text-white text-decoration-none me-3">
-					    <i class="fas fa-shopping-cart"></i> Giỏ hàng 
-					    <span id="cart-count" 
-					          class="badge bg-danger rounded-pill" 
-					          th:text="${session.cart != null ? session.cart.size() : 0}">0
-					    </span>
-					</a>
-                    </li>
-                    <li class="nav-item">
-                       <div class="d-flex align-items-center">
-    
-                            <a sec:authorize="isAnonymous()" th:href="@{/login}" class="nav-link text-white text-decoration-none">
-                                <i class="fas fa-user"></i> Đăng nhập
-                            </a>
 
-                            <div sec:authorize="isAuthenticated()" class="dropdown">
-                                <a class="nav-link text-white text-decoration-none dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-user-circle"></i> Xin chào, <b sec:authentication="name">User</b>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end mt-2">
-                                    <li><a class="dropdown-item" th:href="@{/order/history}">Đơn hàng của tôi</a></li>
-                                    <li><a class="dropdown-item" th:href="@{/tai-khoan/ho-so}">Cập nhật hồ sơ</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form th:action="@{/logout}" method="post" class="m-0">
-                                            <button type="submit" class="dropdown-item text-danger border-0 bg-transparent">Đăng xuất</button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div>
+<nav th:fragment="header" class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/product/list">FPT Shop</a>
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/list">Trang chu</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/list?cid=1000">Dong ho</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/list?cid=1001">May tinh</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/list?cid=1002">Dien thoai</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/product/list?cid=1003">Tai nghe</a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a th:href="@{/cart}" class="nav-link text-white text-decoration-none me-3">
+                        <i class="fas fa-shopping-cart"></i> Gio hang
+                        <span id="cart-count" class="badge bg-danger rounded-pill">0</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <div class="d-flex align-items-center">
+
+                        <a sec:authorize="isAnonymous()"
+                           th:href="@{/login}"
+                           class="nav-link text-white text-decoration-none">
+                            <i class="fas fa-user"></i> Dang nhap
+                        </a>
+
+                        <!-- Thay doi: them id="accountDropdownBtn" va id="accountDropdownMenu" -->
+                        <div sec:authorize="isAuthenticated()" class="dropdown">
+                            <button class="btn btn-dark dropdown-toggle text-white"
+                                    type="button"
+                                    id="accountDropdownBtn"
+                                    aria-expanded="false">
+                                <i class="fas fa-user-circle"></i>
+                                <b id="user-fullname">Tai khoan</b>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" id="accountDropdownMenu">
+                                <li sec:authorize="hasAnyRole('ADMIN', 'DIRE')">
+                                    <a class="dropdown-item fw-bold text-primary" th:href="@{/admin/product}">
+                                        <i class="fas fa-cogs"></i> Quan ly san pham
+                                    </a>
+                                </li>
+                                <li sec:authorize="hasAnyRole('ADMIN', 'DIRE')">
+                                    <a class="dropdown-item fw-bold text-primary" th:href="@{/admin/category}">
+                                        <i class="fas fa-folder"></i> Quan ly danh muc
+                                    </a>
+                                </li>
+                                <li sec:authorize="hasAnyRole('ADMIN', 'DIRE')">
+                                    <a class="dropdown-item fw-bold text-primary" th:href="@{/admin/order}">
+                                        <i class="fas fa-list"></i> Quan ly don hang
+                                    </a>
+                                </li>
+                                <li sec:authorize="hasAnyRole('ADMIN', 'DIRE')">
+                                    <a class="dropdown-item fw-bold text-primary" th:href="@{/admin/account}">
+                                        <i class="fas fa-users"></i> Quan ly tai khoan
+                                    </a>
+                                </li>
+                                <li sec:authorize="hasAnyRole('ADMIN', 'DIRE')">
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" th:href="@{/order/history}">Don hang cua toi</a></li>
+                                <li><a class="dropdown-item" th:href="@{/tai-khoan/ho-so}">Cap nhat ho so</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form th:action="@{/logout}" method="post" class="m-0">
+                                        <button type="submit"
+                                                class="dropdown-item text-danger border-0 bg-transparent">
+                                            Dang xuat
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
                         </div>
-                    </li>
-                </ul>
-            </div>
+
+                    </div>
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // =========================================================
+        // DROPDOWN: dung vanilla JS, chay ngay khong can DOMContentLoaded
+        // vi fragment duoc inject vao trang da load xong roi
+        // =========================================================
+        (function initDropdown() {
+            var btn  = document.getElementById('accountDropdownBtn');
+            var menu = document.getElementById('accountDropdownMenu');
+            if (!btn || !menu) return;
+
+            // Click nut -> toggle show
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var isOpen = menu.classList.contains('show');
+                menu.classList.toggle('show', !isOpen);
+                btn.setAttribute('aria-expanded', String(!isOpen));
+            });
+
+            // Click ngoai -> dong menu
+            document.addEventListener('click', function () {
+                menu.classList.remove('show');
+                btn.setAttribute('aria-expanded', 'false');
+            });
+        })();
+
+        // =========================================================
+        // GIO HANG: cap nhat badge
+        // =========================================================
+        (function updateCartBadge() {
+            fetch('/api/cart/count')
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (data) {
+                    if (data && typeof data.totalItems !== 'undefined') {
+                        var badge = document.getElementById('cart-count');
+                        if (badge) badge.textContent = data.totalItems;
+                    }
+                })
+                .catch(function () {});
+        })();
+
+        // =========================================================
+        // TEN NGUOI DUNG: hien thi tren navbar
+        // =========================================================
+        (function loadUserFullname() {
+            var el = document.getElementById('user-fullname');
+            if (!el) return;
+            fetch('/api/account/profile')
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (data) {
+                    if (!data) return;
+                    var name = (data.fullname && data.fullname.trim() !== '')
+                        ? data.fullname
+                        : data.username;
+                    el.textContent = name || 'Tai khoan';
+                })
+                .catch(function () {});
+        })();
+
+        // =========================================================
+        // HAM TOAN CUC cho cac trang khac goi refresh gio hang
+        // =========================================================
+        window.refreshCartBadge = function () {
+            fetch('/api/cart/count')
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (data) {
+                    if (data && typeof data.totalItems !== 'undefined') {
+                        var badge = document.getElementById('cart-count');
+                        if (badge) badge.textContent = data.totalItems;
+                    }
+                })
+                .catch(function () {});
+        };
+    </script>
+</nav>
+
 </body>
 </html>

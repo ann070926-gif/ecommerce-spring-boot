@@ -6,40 +6,36 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 
 @Entity
-@Table(name = "Orders")
-public class Order implements Serializable {
+@Table(name = "ShoppingCarts")
+public class Cart implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     
-    String address;
-
+    String username;
+    
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "Createdate")
+    @Column(name = "CreateDate")
     Date createDate = new Date();
-
-    @ManyToOne
-    @JoinColumn(name = "Username")
-    Account account;
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "UpdateDate")
+    Date updateDate = new Date();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    List<OrderDetail> orderDetails;
+    @OneToMany(mappedBy = "cart", cascade = jakarta.persistence.CascadeType.ALL, fetch = jakarta.persistence.FetchType.EAGER)
+    List<CartItem> items;
 
     // Getters & Setters
     public Long getId() {
@@ -50,12 +46,12 @@ public class Order implements Serializable {
         this.id = id;
     }
 
-    public String getAddress() {
-        return address;
+    public String getUsername() {
+        return username;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public Date getCreateDate() {
@@ -66,19 +62,19 @@ public class Order implements Serializable {
         this.createDate = createDate;
     }
 
-    public Account getAccount() {
-        return account;
+    public Date getUpdateDate() {
+        return updateDate;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
+    public void setUpdateDate(Date updateDate) {
+        this.updateDate = updateDate;
     }
 
-    public List<OrderDetail> getOrderDetails() {
-        return orderDetails;
+    public List<CartItem> getItems() {
+        return items;
     }
 
-    public void setOrderDetails(List<OrderDetail> orderDetails) {
-        this.orderDetails = orderDetails;
+    public void setItems(List<CartItem> items) {
+        this.items = items;
     }
 }

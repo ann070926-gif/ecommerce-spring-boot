@@ -2,8 +2,6 @@ package com.poly.entity;
 
 import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,23 +11,22 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Orderdetails")
-public class OrderDetail implements Serializable {
+@Table(name = "CartItems")
+public class CartItem implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     
-    Double price;
     Integer quantity;
+    Double price;
 
     @ManyToOne
-    @JoinColumn(name = "Productid")
+    @JoinColumn(name = "CartId")
+    Cart cart;
+
+    @ManyToOne
+    @JoinColumn(name = "ProductId")
     Product product;
-
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "Orderid")
-    Order order;
 
     // Getters & Setters
     public Long getId() {
@@ -40,6 +37,14 @@ public class OrderDetail implements Serializable {
         this.id = id;
     }
 
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
     public Double getPrice() {
         return price;
     }
@@ -48,12 +53,12 @@ public class OrderDetail implements Serializable {
         this.price = price;
     }
 
-    public Integer getQuantity() {
-        return quantity;
+    public Cart getCart() {
+        return cart;
     }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 
     public Product getProduct() {
@@ -64,11 +69,7 @@ public class OrderDetail implements Serializable {
         this.product = product;
     }
 
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
+    public double getSubTotal() {
+        return price != null && quantity != null ? price * quantity : 0;
     }
 }

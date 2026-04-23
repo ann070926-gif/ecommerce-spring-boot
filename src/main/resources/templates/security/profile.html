@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ cá nhân - FPT Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f0f2f5; }
+
+        .profile-card {
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,.10);
+        }
+
+        .profile-banner {
+            background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+            height: 120px;
+            position: relative;
+        }
+
+        .profile-avatar-wrap {
+            position: absolute;
+            bottom: -40px;
+            left: 36px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #fff;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 16px rgba(0,0,0,.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: #0d6efd;
+        }
+
+        .profile-body { padding: 60px 36px 36px; }
+
+        .profile-username {
+            font-size: 20px;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .profile-role {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #0d6efd;
+            border-radius: 20px;
+            padding: 2px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            padding: 10px 14px;
+            border: 1.5px solid #dee2e6;
+            font-size: 15px;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13,110,253,.12);
+        }
+
+        .form-control:disabled {
+            background: #f8f9fa;
+            color: #6c757d;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #0d6efd, #0a58ca);
+            border: none;
+            border-radius: 10px;
+            padding: 11px 32px;
+            font-weight: 600;
+            font-size: 15px;
+            color: #fff;
+            transition: transform .15s, box-shadow .15s;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(13,110,253,.35);
+            color: #fff;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1.5px solid #f0f2f5;
+            margin: 24px 0;
+        }
+
+        #page-alert { display: none; border-radius: 10px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{layout/_header :: header}"></div>
+
+    <div class="container py-5" style="max-width:620px;">
+
+        <div id="page-alert" class="alert mb-4" role="alert"></div>
+
+        <div class="profile-card">
+
+            <!-- Banner + Avatar -->
+            <div class="profile-banner">
+                <div class="profile-avatar-wrap">
+                    <div class="profile-avatar" id="page-avatar">?</div>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="profile-body">
+
+                <!-- Thông tin tên + badge -->
+                <div class="mb-4">
+                    <div class="profile-username" id="page-username">Đang tải...</div>
+                    <span class="profile-role">
+                        <i class="fas fa-user me-1"></i>Thành viên
+                    </span>
+                </div>
+
+                <hr class="divider">
+
+                <!-- Loading -->
+                <div id="page-loading" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="text-muted mt-2 mb-0" style="font-size:13px;">Đang tải thông tin...</p>
+                </div>
+
+                <!-- Form -->
+                <form id="page-form" style="display:none;" onsubmit="submitPageProfile(event)">
+
+                    <!-- Username (read-only) -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-at me-1 text-primary"></i>Tên đăng nhập
+                        </label>
+                        <input type="text" id="page-input-username" class="form-control"
+                               disabled placeholder="username">
+                        <div class="form-text">Tên đăng nhập không thể thay đổi</div>
+                    </div>
+
+                    <!-- Họ tên -->
+                    <div class="mb-3">
+                        <label class="form-label" for="page-input-fullname">
+                            <i class="fas fa-id-card me-1 text-primary"></i>Họ và tên
+                        </label>
+                        <input type="text" id="page-input-fullname" name="fullname"
+                               class="form-control"
+                               placeholder="Nhập họ và tên đầy đủ" required>
+                    </div>
+
+                    <!-- Email (read-only) -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-envelope me-1 text-primary"></i>Email
+                        </label>
+                        <input type="email" id="page-input-email" class="form-control"
+                               disabled placeholder="email">
+                        <div class="form-text">Email không thể thay đổi</div>
+                    </div>
+
+                    <!-- Địa chỉ -->
+                    <div class="mb-3">
+                        <label class="form-label" for="page-input-address">
+                            <i class="fas fa-map-marker-alt me-1 text-primary"></i>Địa chỉ
+                        </label>
+                        <input type="text" id="page-input-address" name="address"
+                               class="form-control"
+                               placeholder="Nhập địa chỉ nhà">
+                    </div>
+
+                    <!-- Số điện thoại -->
+                    <div class="mb-4">
+                        <label class="form-label" for="page-input-phone">
+                            <i class="fas fa-phone me-1 text-primary"></i>Số điện thoại
+                        </label>
+                        <input type="tel" id="page-input-phone" name="phone"
+                               class="form-control"
+                               placeholder="Nhập số điện thoại">
+                    </div>
+
+                    <!-- Nút -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-save" id="page-btn-save">
+                            <i class="fas fa-save me-1"></i>Lưu thay đổi
+                        </button>
+                        <a href="/product/list" class="btn btn-outline-secondary"
+                           style="border-radius:10px;padding:11px 20px;font-weight:600;">
+                            <i class="fas fa-arrow-left me-1"></i>Quay lại
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{layout/_footer :: footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load dữ liệu khi trang mở
+        (function loadPageProfile() {
+            fetch('/api/account/profile')
+                .then(function(r) {
+                    if (r.status === 401) {
+                        window.location.href = '/login';
+                        throw new Error('Chưa đăng nhập');
+                    }
+                    if (!r.ok) throw new Error('Không tải được thông tin');
+                    return r.json();
+                })
+                .then(function(data) {
+                    document.getElementById('page-input-username').value = data.username || '';
+                    document.getElementById('page-input-fullname').value  = data.fullname || '';
+                    document.getElementById('page-input-email').value     = data.email    || '';
+                    document.getElementById('page-input-address').value   = data.address  || '';
+                    document.getElementById('page-input-phone').value     = data.phone    || '';
+
+                    var u = data.username || '?';
+                    document.getElementById('page-username').textContent      = data.fullname || u;
+                    document.getElementById('page-avatar').textContent         = u.charAt(0).toUpperCase();
+
+                    document.getElementById('page-loading').style.display = 'none';
+                    document.getElementById('page-form').style.display    = 'block';
+                })
+                .catch(function(err) {
+                    document.getElementById('page-loading').style.display = 'none';
+                    showPageAlert('danger', err.message);
+                });
+        })();
+
+        function submitPageProfile(event) {
+            event.preventDefault();
+            var btn = document.getElementById('page-btn-save');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang lưu...';
+
+            var fd = new FormData();
+            fd.append('fullname', document.getElementById('page-input-fullname').value);
+            fd.append('phone',    document.getElementById('page-input-phone').value);
+            fd.append('address',  document.getElementById('page-input-address').value);
+
+            fetch('/tai-khoan/ho-so', { method: 'POST', body: fd })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.status === 'success') {
+                        showPageAlert('success', '<i class="fas fa-check-circle me-1"></i>' + data.message);
+                        if (data.fullname) {
+                            document.getElementById('page-username').textContent = data.fullname;
+                        }
+                    } else {
+                        showPageAlert('danger', '<i class="fas fa-exclamation-circle me-1"></i>' + (data.message || 'Lỗi'));
+                    }
+                })
+                .catch(function() {
+                    showPageAlert('danger', 'Không thể kết nối máy chủ');
+                })
+                .finally(function() {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-save me-1"></i>Lưu thay đổi';
+                });
+        }
+
+        function showPageAlert(type, html) {
+            var el = document.getElementById('page-alert');
+            el.className = 'alert alert-' + type + ' mb-4';
+            el.innerHTML = html;
+            el.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
